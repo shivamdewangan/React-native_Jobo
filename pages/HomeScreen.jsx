@@ -8,138 +8,93 @@ import {
     Linking,
     Image,
 } from "react-native";
-import { ActivityIndicator, Avatar, Card, Paragraph } from "react-native-paper";
-import { StatusBar } from "expo-status-bar";
+import { ActivityIndicator, Avatar, Card, Searchbar } from "react-native-paper";
 import {
     MD3LightTheme,
     PaperProvider,
-    Button,
 } from "react-native-paper";
 import { useMaterial3Theme } from "@pchmn/expo-material3-theme";
 import { useEffect, useState } from "react";
-import { List } from "react-native-paper";
 
-import data from "../util/data.json";
+import { Alert } from "react-native";
+import useData from "../util/data.json";
+import fetchCall from "../util/fetch";
 
-const Generate = ({ navigation }) => {
+const Generate = () => {
     const { theme } = useMaterial3Theme();
     let [isLoading, setIsLoading] = useState(true);
-    const [items, setItems] = useState([]);
-    const [links, setLinks] = useState([]);
-    const [prices, setPrices] = useState([]);
+    let [data, setData] = useState(useData);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await await new Promise(res => setTimeout(() => res([
-                    {
-                        "name": "Food",
-                        "item_link": "https://google.com/search?q=food",
-                        "cost": 6.99
-                    },
-                    {
-                        "name": "Drinks",
-                        "item_link": "https://google.com/search?q=drinks",
-                        "cost": 9999.01
-                    },
-                    {
-                        "name": "Party",
-                        "item_link": "https://google.com/search?q=party",
-                        "cost": 99.01
-                    },
-                    {
-                        "name": "DJ",
-                        "item_link": "https://google.com/search?q=dj",
-                        "cost": 999.00
-                    },
-                    {
-                        "name": "Bride",
-                        "item_link": "https://google.com/search?q=bride",
-                        "cost": 9999999999.00
-                    },
-                ]), 3000));
+                const data = await fetchCall();
 
-                const itemsArray = [];
-                const linksArray = [];
-                const pricesArray = [];
-
-                data.forEach((item) => {
-                    itemsArray.push(item.name);
-                    linksArray.push(item.item_link);
-                    pricesArray.push("$" + item.cost);
-                });
-
-                setItems(itemsArray);
-                setLinks(linksArray);
-                setPrices(pricesArray);
+                setData(data.allJobs);
 
                 setIsLoading(false);
             } catch (error) {
                 setIsLoading(false);
-                console.error("Error fetching data: ", error);
+                // console.error("Error fetching data: ", error);
             }
         };
 
         fetchData();
     }, []);
 
-    const getContent = () => {
-        if (isLoading) {
-            return (
-                <View>
-                    <ActivityIndicator size="large" animating={true} color="#EE4266" />
-                    <Text style={{ marginTop: 30, fontSize: 18 }}>
-                        Optimizing items and prices...
-                    </Text>
-                </View>
-            );
+    const [searchQuery, setSearchQuery] = React.useState("");
+    const onChangeSearch = (query) => setSearchQuery(query);
+
+    const filterFunction = (item) => {
+        if (item.title.toLowerCase().includes(searchQuery.trim().toLowerCase())) return true;
+        if (item.location.toLowerCase().includes(searchQuery.trim().toLowerCase())) return true;
+        if (item.company.toLowerCase().includes(searchQuery.trim().toLowerCase())) return true;
+        return false;
+    };
+
+    const openURI = async (url) => {
+        const supported = await Linking.canOpenURL(url);
+        if (supported) {
+            await Linking.openURL(url);
+        } else {
+            Alert.alert(`Don't know how to open this URL: ${url}`);
         }
-        return (
-            <View>
-                <PaperProvider theme={paperTheme}>
-                    <StatusBar style="auto" />
-                    <View>
-                        <Text style={{ fontWeight: 'bold', fontSize: 28, textAlign: 'center', padding: '5%', top: '140%' }}>Here&apos;s a {'\n'}<Text style={{ color: '#EE4266' }}>list of affordable items</Text>{'\n'} we chose</Text>
-                    </View>
-                    <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: '12%', top: '20%', maxHeight: '30%', left: '5%', maxWidth: '90%', flex: 1, flexGrow: 1 }}>
-                        <ScrollView contentContainerStyle={{ justifyContent: 'center' }}>
-                            <List.Section key={'list'} >
-                                {items.map((item, index) => (
-                                    <View style={{ padding: 10 }} key={index}>
-                                        <List.Item
-                                            key={index}
-                                            title={item}
-                                            description={prices[index]}
-                                            left={props => <List.Icon {...props} icon="link-variant" />}
-                                            onPress={() => Linking.openURL(links[index])}
-                                            style={{ flexDirection: 'row', backgroundColor: 'rgba(238, 66, 102, 0.1)', borderBottomWidth: 10, borderBottomColor: '#f1f1f1' }}
-                                        />
-                                    </View>
-                                ))}
-                            </List.Section>
-                        </ScrollView>
-                    </View>
-                    <Button mode="contained" onPress={() => navigation.navigate('ChooseEvent')} style={styles.customButton}
-                        labelStyle={{ textAlign: 'center' }} contentStyle={{ backgroundColor: 'black' }}>New Event
-                    </Button>
-                </PaperProvider>
-            </View>
-        );
-
-
     }
 
     const paperTheme = { ...MD3LightTheme, colors: theme.light };
 
+
+    if (isLoading) {
+        return (
+            <View style={{ justifyContent: "center", alignItems: "center", textAlign: "center", marginTop: 300 }}>
+                <ActivityIndicator size="large" animating={true} color="#EE4266" />
+                <Text style={{ marginTop: 30, fontSize: 18, color: "#EE4266" }}>
+                    Getting latest Job opportunities for you...
+                </Text>
+            </View>
+        );
+    }
+
     return (
         <PaperProvider theme={paperTheme}>
+            <View style={{ paddingBottom: 20, marginLeft: "5%", marginRight: "5%" }}>
+                <Searchbar
+                    style={{
+                        backgroundColor: "#eaeaea",
+                        borderRadius: 4,
+                        top: 20,
+                        borderColor: "black",
+                        marginBottom: 10,
+                    }}
+                    placeholder="Search fo Jobs, Location, Company..."
+                    onChangeText={onChangeSearch}
+                    value={searchQuery}
+                />
+            </View>
             <ScrollView contentContainerStyle={{ justifyContent: 'center' }}>
-                <View style={{ marginTop: "5%", marginBottom: "5%", marginLeft: "2%" }}>
-                    <Text style={{ fontSize: 20, fontWeight: "600", color: "#545454" }}>Recent Job Postings in India</Text>
-                </View>
-                <View style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, paddingLeft: 20, paddingRight: 20, paddingBottom: 40 }}>
-                    {data.map((job) => (<View style={styles.wrap} key={job.id}>
-                        <Card style={styles.card}>
+                <View style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 20, paddingLeft: 20, paddingTop: 20, paddingRight: 20, paddingBottom: 40 }}>
+                    {data.filter(filterFunction).map((job) => (<View style={styles.wrap} key={job.id}>
+                        <Card style={styles.card} onPress={() => openURI(job.link)}>
                             <Card.Title
                                 title={job.title}
                                 titleStyle={styles.title}

@@ -26,7 +26,6 @@ const App = () => {
 const styles = StyleSheet.create({
     logo: {
         paddingTop: "6%",
-        paddingBottom: "2%",
         paddingLeft: "2%",
         fontWeight: "700",
         fontSize: 40,
