@@ -23,11 +23,11 @@ const HomeScreen = ({ navigation }) => {
     return (
         <PaperProvider theme={paperTheme}>
             <StatusBar style="auto" />
-            <Image
+            {/* <Image
                 // eslint-disable-next-line no-undef
                 source={require("../assets/first-page-image.png")}
                 style={styles.logo}
-            />
+            /> */}
             <View style={styles.text}>
                 <Text style={{ fontWeight: "bold", color: "black", fontSize: 24 }}>
                     Start budgeting events {"\n          "} with Eventful
