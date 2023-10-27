@@ -1,11 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import HomeScreen from './pages/HomeScreen.js';
-import ChooseEvent from './pages/ChooseEvent.js';
-import Budget from './pages/Budget.js';
-import Generate from './pages/Generate.js';
-import RadioList from './pages/Radio_List.js';
+import HomeScreen from './pages/HomeScreen.jsx';
+import { Text, StyleSheet } from "react-native";
+
 
 const Stack = createStackNavigator();
 
@@ -16,38 +14,24 @@ const App = () => {
                 <Stack.Screen
                     name="HomeScreen"
                     component={HomeScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="ChooseEvent"
-                    component={ChooseEvent}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Budget"
-                    component={Budget}
-                    options={{ headerShown: false }}
-
-                />
-                <Stack.Screen
-                    name="Radio_List"
-                    component={RadioList}
                     options={{
-                        headerShown: false,
-                        gestureEnabled: false
-                    }}
-                />
-                <Stack.Screen
-                    name="Generate"
-                    component={Generate}
-                    options={{
-                        headerShown: false,
-                        gestureEnabled: false
+                        header: () => (<Text style={styles.logo}>JOBO</Text>),
                     }}
                 />
             </Stack.Navigator>
         </NavigationContainer>
     );
 };
+
+const styles = StyleSheet.create({
+    logo: {
+        paddingTop: "6%",
+        paddingBottom: "2%",
+        paddingLeft: "2%",
+        fontWeight: "700",
+        fontSize: 40,
+        color: "#2a52be",
+    },
+});
 
 export default App;
